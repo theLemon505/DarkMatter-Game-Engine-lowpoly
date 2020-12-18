@@ -1,8 +1,8 @@
 package DarkMatterEditor.Gui;
 
-import CoreEngine.DisplayMAnager;
 import CoreEngine.Main;
 import CoreEngine.Objects.Scene;
+import CoreEngine.Window;
 import DarkMatterEditor.GameViewPanel;
 import imgui.*;
 import imgui.callback.ImStrConsumer;
@@ -18,6 +18,7 @@ public class ImGuiLayer {
     private final long[] mouseCursors = new long[ImGuiMouseCursor.COUNT];
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
     public static int dockspaceID = 0;
+    private GameViewPanel gameViewPanel = new GameViewPanel();
     public ImGuiLayer(long window){
         this.windowPtr = window;
     }
@@ -185,9 +186,9 @@ public class ImGuiLayer {
         // Any Dear ImGui code SHOULD go between ImGui.newFrame()/ImGui.render() methods
         ImGui.newFrame();
         setupDockspace();
-        scene.sceneImgui();
+        scene.imgui();
         ImGui.showDemoWindow();
-        GameViewPanel.imgui();
+        gameViewPanel.imgui();
         ImGui.end();
         ImGui.render();
 
@@ -195,8 +196,8 @@ public class ImGuiLayer {
     }
     private void startFrame(final float deltaTime) {
         // Set the clear color and clear the window
-        int[] winWidth = {Main.window.getWidth()};
-        int[] winHeight = {Main.window.getHeight()};
+        int[] winWidth = {Window.get().getWidth()};
+        int[] winHeight = {Window.get().getHeight()};
         // Get window properties and mouse position
         double[] mousePosX = {0};
         double[] mousePosY = {0};
@@ -231,7 +232,7 @@ public class ImGuiLayer {
         int windowFlags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
 
         ImGui.setNextWindowPos(0.0f, 0.0f, ImGuiCond.Always);
-        ImGui.setNextWindowSize(Main.window.getWidth(), Main.window.getHeight());
+        ImGui.setNextWindowSize(Window.get().getWidth(), Window.get().getHeight());
         ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
         ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
         windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
@@ -241,7 +242,7 @@ public class ImGuiLayer {
         ImGui.popStyleVar(2);
     dockspaceID = ImGui.getID("Dockspace");
         // Dockspace
-        ImGui.dockSpace(dockspaceID, Main.window.getWidth(), Main.window.getHeight());
+        ImGui.dockSpace(dockspaceID, Window.get().getWidth(), Window.get().getHeight());
         ImGui.setNextWindowDockID(dockspaceID, ImGuiCond.FirstUseEver);
     }
 }

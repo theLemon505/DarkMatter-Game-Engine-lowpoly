@@ -6,7 +6,7 @@ import CoreEngine.Objects.Node;
 
 import java.util.List;
 
-public class MeshComponent {
+public class MeshComponent extends Component {
 
     private Vector3f position, rotation, scale;
     private Mesh mesh;
