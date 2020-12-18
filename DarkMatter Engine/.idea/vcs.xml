@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/ejml" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/imgui-java" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/legui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/legui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/legui/legui" vcs="Git" />
+  </component>
+</project>

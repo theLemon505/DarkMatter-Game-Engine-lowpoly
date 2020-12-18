@@ -1,0 +1,40 @@
+<component name="libraryTable">
+  <library name="DarkMatter Engine">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$" />
+      <root url="file://$PROJECT_DIR$/ejml/examples/src" />
+      <root url="file://$PROJECT_DIR$/ejml/examples/test" />
+      <root url="file://$PROJECT_DIR$/ejml/main/autocode/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-all/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-core/generate" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-core/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-core/test" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-ddense/benchmarks/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-ddense/generate" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-ddense/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-ddense/test" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-dsparse/benchmarks/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-dsparse/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-dsparse/test" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-experimental/benchmarks/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-experimental/benchmarks/test" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-experimental/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-experimental/test" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-simple/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-simple/test" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-zdense/benchmarks/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-zdense/generate" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-zdense/src" />
+      <root url="file://$PROJECT_DIR$/ejml/main/ejml-zdense/test" />
+      <root url="file://$PROJECT_DIR$/imgui-java/imgui-binding/src/main/java" />
+      <root url="file://$PROJECT_DIR$/imgui-java/imgui-binding/src/test/java" />
+      <root url="file://$PROJECT_DIR$/imgui-java/imgui-lwjgl3/src/main/java" />
+      <root url="file://$PROJECT_DIR$/imgui-java/imgui-lwjgl3/src/test/java" />
+      <root url="file://$PROJECT_DIR$/src" />
+    </SOURCES>
+  </library>
+</component>
