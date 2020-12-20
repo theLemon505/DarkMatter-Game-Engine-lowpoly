@@ -2,6 +2,7 @@
   <library name="libs">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/libs" />
+      <root url="file://$PROJECT_DIR$/libs" />
     </CLASSES>
     <JAVADOC />
     <NATIVE>
@@ -9,8 +10,11 @@
     </NATIVE>
     <SOURCES>
       <root url="file://$PROJECT_DIR$/libs" />
+      <root url="file://$PROJECT_DIR$/libs" />
     </SOURCES>
     <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" type="SOURCES" />
     <jarDirectory url="file://$PROJECT_DIR$/libs" recursive="false" type="SOURCES" />
   </library>
 </component>

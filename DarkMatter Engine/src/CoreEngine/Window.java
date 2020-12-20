@@ -1,21 +1,30 @@
 package CoreEngine;
 
+import CoreEngine.Components.MeshComponent;
+import CoreEngine.DefaultShapes.Cube;
 import CoreEngine.Graphics.FrameBuffer;
+import CoreEngine.Graphics.Mesh;
 import CoreEngine.Graphics.Renderer;
 import CoreEngine.Input.InputSystem;
 import CoreEngine.Maths.Matrix4f;
+import CoreEngine.Maths.Vector3f;
 import CoreEngine.Objects.Node;
 import CoreEngine.Objects.Scene;
 import CoreEngine.Objects.Scenes.EditorSceneInitializer;
 import CoreEngine.Objects.Scenes.SceneInitializer;
+import CoreEngine.Observers.Events.Event;
 import CoreEngine.Shaders.Shader;
+import DarkMatterEditor.ConsolePanel;
 import DarkMatterEditor.Gui.ImGuiLayer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjglx.Sys;
 
-import java.awt.*;
 import java.awt.event.MouseListener;
 
+import static CoreEngine.Observers.Events.EventType.*;
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -30,7 +39,7 @@ public class Window {
     private ImGuiLayer imguiLayer;
     private InputSystem input = new InputSystem();
     private FrameBuffer framebuffer;
-    private Matrix4f projection;
+    private static Matrix4f projection;
     //private PickingTexture pickingTexture;
     private boolean runtimePlaying = false;
 
@@ -41,7 +50,7 @@ public class Window {
     private Window() {
         this.width = 1920;
         this.height = 1080;
-        this.title = "Jade";
+        this.title = "DarkMatter Engine v0.1";
         projection = Matrix4f.projection(70.0f, (float) width / (float) height, 0.1f, 1000.0f);
     }
 
@@ -56,7 +65,7 @@ public class Window {
         currentScene.init();
         currentScene.start();
     }
-    public Matrix4f getProjectionMatrix() {
+    public static Matrix4f getProjectionMatrix() {
         return projection;
     }
     public static Window get() {
@@ -93,7 +102,6 @@ public class Window {
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW.");
         }
-
         // Configure GLFW
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -102,6 +110,7 @@ public class Window {
 
         // Create the window
         glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
+
         if (glfwWindow == NULL) {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
@@ -140,6 +149,7 @@ public class Window {
         this.imguiLayer.initImGui();
 
         Window.changeScene(new EditorSceneInitializer());
+
     }
 
     public void loop() {
@@ -148,7 +158,13 @@ public class Window {
         float dt = -1.0f;
         defaultShader = new Shader("src/CoreEngine/Shaders/MainVertex.glsl", "src/CoreEngine/Shaders/MainFragmentShader.glsl");
         //Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
+        defaultShader.create();
         renderer = new Renderer(defaultShader);
+        Cube cube = new Cube();
+        Mesh mesh = cube.mesh;
+        Node obj = new Node("default");
+        obj.addComponent(new MeshComponent(new Vector3f(0,0,0), new Vector3f(0,0,0), new Vector3f(1,1,1), mesh));
+        currentScene.addGameObjectToScene(obj);
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
@@ -158,19 +174,20 @@ public class Window {
             //pickingTexture.enableWriting();
 
             glViewport(0, 0, 3840, 2160);
-            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClearColor(0.5f, 0.5f, 0.5f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             //Renderer.bindShader(pickingShader);
-            currentScene.render();
+            //currentScene.render();
 
             //pickingTexture.disableWriting();
             glEnable(GL_BLEND);
 
             // Render pass 2. Render actual game
+            drawGrid();
             renderer.renderMesh();
             this.framebuffer.bind();
-            glClearColor(1, 1, 1, 1);
+            glClearColor(0.5f, 0.5f, 0.5f, 1);
             glClear(GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
@@ -179,7 +196,7 @@ public class Window {
                 } else {
                     currentScene.editorUpdate(dt);
                 }
-                currentScene.render();
+                //currentScene.render();
             }
             this.framebuffer.unbind();
 
@@ -220,21 +237,42 @@ public class Window {
         return get().imguiLayer;
     }
 
-    //@Override
-    //public void onNotify(Node object, AWTEvent event) {
-    //    switch (event.type) {
-     //       case GameEngineStartPlay:
-     //           this.runtimePlaying = true;
-     //           currentScene.save();
-//                break;
-      //      case GameEngineStopPlay:
-     //           this.runtimePlaying = false;
-     //           Window.changeScene(new EditorSceneInitializer());
-      //          break;
-      //      case LoadLevel:
-        //        Window.changeScene(new EditorSceneInitializer());
-      //      case SaveLevel:
-       //         currentScene.save();
-      //  }
-  //  }
+
+    public void onNotify(Node object, Event event) {
+        switch (event.type) {
+            case GameEngineStartPlay:
+                this.runtimePlaying = true;
+                currentScene.save();
+                break;
+            case GameEngineStopPlay:
+                this.runtimePlaying = false;
+                Window.changeScene(new EditorSceneInitializer());
+                break;
+            case LoadLevel:
+                Window.changeScene(new EditorSceneInitializer());
+            case SaveLevel:
+                currentScene.save();
+        }
+    }
+    public void drawGrid() {
+        for (int i = 0; i < 100; i++) {
+            glPushMatrix();
+            if (i < 50) {
+                glTranslatef(0, i, 0);
+            }
+            if (i >= 50) {
+                glTranslatef(i - 20, 0, 0);
+                glRotatef(-90, 0, 1, 0);
+            }
+            glBegin(GL_LINES);
+            glColor3f(1, 1, 1);
+            glLineWidth(1);
+            glVertex3f(0, -0.1f, 0);
+            glVertex3f(19, -0.1f, 0);
+            glEnd();
+            glPopMatrix();
+            System.out.println("renderingGrid");
+            ConsolePanel.log("rendering Grid ");
+        }
+    }
 }

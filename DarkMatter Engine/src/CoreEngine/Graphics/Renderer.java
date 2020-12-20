@@ -8,6 +8,7 @@ import CoreEngine.Components.MeshComponent;
 import CoreEngine.Shaders.Shader;
 import org.lwjgl.opengl.*;
 import CoreEngine.*;
+import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class Renderer {
     private Window window;
     public List<Node> nodes = new ArrayList<>();
     public Renderer(Shader shader) {
-        this.shader = shader;
+        this.shader = Window.get().defaultShader;
         this.window = Window.get();
     }
     public void renderMesh(MeshComponent object, EditorCamera camera) {
@@ -45,6 +46,7 @@ public class Renderer {
         GL30.glBindVertexArray(0);
     }
     public void renderMesh(MeshComponent object, Camera camera) {
+
         GL30.glBindVertexArray(object.getMesh().getVAO());
         GL30.glEnableVertexAttribArray(0);
         GL30.glEnableVertexAttribArray(1);
@@ -66,31 +68,31 @@ public class Renderer {
         GL30.glBindVertexArray(0);
     }
     public void renderMesh() {
+
         for (Node n: nodes
              ) {
             if (n.getComponent(MeshComponent.class) != null) {
-                Node object = n;
-                GL30.glBindVertexArray(object.getComponent(MeshComponent.class).getMesh().getVAO());
+
+                GL30.glBindVertexArray(n.getComponent(MeshComponent.class).getMesh().getVAO());
                 GL30.glEnableVertexAttribArray(0);
                 GL30.glEnableVertexAttribArray(1);
                 GL30.glEnableVertexAttribArray(2);
                 GL13.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, object.getComponent(MeshComponent.class).getMesh().getIBO());
+                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, n.getComponent(MeshComponent.class).getMesh().getIBO());
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
-                GL13.glBindTexture(GL11.GL_TEXTURE_2D, object.getComponent(MeshComponent.class).getMesh().getMaterial().getTextureID());
-                shader.bind();
-                shader.setUniform("model", Matrix4f.transform(object.transform.getPosition(), object.transform.getRotation(), object.transform.getScale()));
-                shader.setUniform("view", Matrix4f.view(camera.getPosition(), camera.getRotation()));
-                shader.setUniform("projection", window.getProjectionMatrix());
-                GL11.glDrawElements(GL11.GL_TRIANGLES, object.getComponent(MeshComponent.class).getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
-                shader.unbind();
+                GL13.glBindTexture(GL11.GL_TEXTURE_2D, n.getComponent(MeshComponent.class).getMesh().getMaterial().getTextureID());
+                this.shader.bind();
+                this.shader.setUniform("model", Matrix4f.transform(n.transform.getPosition(), n.transform.getRotation(), n.transform.getScale()));
+                this.shader.setUniform("view", Matrix4f.view(camera.getPosition(), camera.getRotation()));
+                this.shader.setUniform("projection", window.getProjectionMatrix());
+                GL11.glDrawElements(GL11.GL_TRIANGLES, n.getComponent(MeshComponent.class).getMesh().getIndices().length, GL11.GL_UNSIGNED_INT, 0);
+                this.shader.unbind();
                 GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
                 GL30.glDisableVertexAttribArray(0);
                 GL30.glDisableVertexAttribArray(1);
                 GL30.glDisableVertexAttribArray(2);
                 GL30.glBindVertexArray(0);
             }
-
         }
     }
 }

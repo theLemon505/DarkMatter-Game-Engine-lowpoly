@@ -1,13 +1,12 @@
 package DarkMatterEditor.Gui;
 
+import CoreEngine.EngineUtils.Time;
 import CoreEngine.Input.InputSystem;
 import CoreEngine.Main;
 import CoreEngine.Objects.Scene;
 import CoreEngine.Observers.MouseListener;
 import CoreEngine.Window;
-import DarkMatterEditor.GameViewPanel;
-import DarkMatterEditor.MenuBar;
-import DarkMatterEditor.PropertiesWindow;
+import DarkMatterEditor.*;
 import imgui.*;
 import imgui.callback.ImStrConsumer;
 import imgui.callback.ImStrSupplier;
@@ -27,11 +26,11 @@ public class ImGuiLayer {
 
     // LWJGL3 renderer (SHOULD be initialized)
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
-
+    private ConsolePanel console = new ConsolePanel();
     private GameViewPanel gameViewWindow = new GameViewPanel();
     private PropertiesWindow propertiesWindow = new PropertiesWindow();
     private MenuBar menuBar = new MenuBar();
-
+    private EditorMain editor = new EditorMain();
     public ImGuiLayer(long glfwWindow) {
         this.glfwWindow = glfwWindow;
         this.gameViewWindow = new GameViewPanel();
@@ -193,13 +192,17 @@ public class ImGuiLayer {
         // Any Dear ImGui code SHOULD go between ImGui.newFrame()/ImGui.render() methods
         ImGui.newFrame();
         setupDockspace();
+        setDarkTheme();
         currentScene.imgui();
+        editor.update();
         ImGui.showDemoWindow();
         gameViewWindow.imgui();
+        console.imgui();
         propertiesWindow.update(dt, currentScene);
         propertiesWindow.imgui();
         menuBar.imgui();
         ImGui.end();
+        editor.render(Time.getTime());
         ImGui.render();
 
         endFrame();
@@ -255,7 +258,12 @@ public class ImGuiLayer {
         // Dockspace
         ImGui.dockSpace(ImGui.getID("Dockspace"));
     }
+    private void setDarkTheme(){
 
+        ImGuiStyle style = ImGui.getStyle();
+        ImGui.styleColorsDark(style);
+
+    }
     public PropertiesWindow getPropertiesWindow() {
         return this.propertiesWindow;
     }

@@ -2,11 +2,12 @@ package DarkMatterEditor;
 
 import CoreEngine.Input.InputSystem;
 import CoreEngine.Maths.Vector3f;
+import CoreEngine.Observers.MouseListener;
 import org.lwjgl.glfw.GLFW;
 
 public class EditorCamera {
     InputSystem input = new InputSystem();
-    private Vector3f position, rotation;
+    private Vector3f position = new Vector3f(-1,0,0), rotation = new Vector3f(0,0,0);
     private float moveSpeed = 0.05f, mouseSensitivity = 0.15f;
     private double oldMouseX = 0, oldMouseY = 0, newMouseX, newMouseY;
 
@@ -33,7 +34,7 @@ public class EditorCamera {
                 position = Vector3f.add(position, new Vector3f(0, -moveSpeed, 0));
         float dx = (float) (newMouseX - oldMouseX);
         float dy = (float) (newMouseY - oldMouseY);
-        if(input.isButtonDown(GLFW.GLFW_MOUSE_BUTTON_2)) {
+        if(MouseListener.mouseButtonDown(2)) {
             rotation = Vector3f.add(rotation, new Vector3f(-dy * mouseSensitivity, -dx * mouseSensitivity, 0));
         }
         oldMouseX = newMouseX;
