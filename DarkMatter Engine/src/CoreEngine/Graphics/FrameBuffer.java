@@ -1,5 +1,6 @@
 package CoreEngine.Graphics;
 import CoreEngine.Main;
+import CoreEngine.Window;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 

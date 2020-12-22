@@ -1,1 +1,73 @@
-[]
+[
+  {
+    "uid": 1,
+    "name": "default",
+    "components": [
+      {
+        "type": "CoreEngine.Components.Transform",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 2
+        }
+      }
+    ],
+    "doSerialization": true,
+    "isDead": false
+  },
+  {
+    "uid": 2,
+    "name": "textNode",
+    "components": [
+      {
+        "type": "CoreEngine.Components.Transform",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -25.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 3
+        }
+      },
+      {
+        "type": "CoreEngine.Models.TexturedModel",
+        "properties": {
+          "rawModel": {
+            "vaoID": 1,
+            "vertexCount": 6
+          },
+          "texture": {
+            "textureID": 3
+          },
+          "uid": 4
+        }
+      }
+    ],
+    "doSerialization": true,
+    "isDead": false
+  }
+]

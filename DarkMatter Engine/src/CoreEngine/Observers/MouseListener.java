@@ -1,10 +1,6 @@
 package CoreEngine.Observers;
 
-import CoreEngine.Components.Camera;
-import CoreEngine.Maths.Matrix4f;
 import CoreEngine.Maths.Vector2f;
-import CoreEngine.Maths.Vector4f;
-import CoreEngine.Window;
 
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;

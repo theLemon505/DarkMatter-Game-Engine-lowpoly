@@ -1,12 +1,11 @@
 #version 330 core
 
-in vec3 passColor;
-in vec2 passTextureCoord;
+in vec2 pass_textureCoords;
 
-out vec4 outColor;
+out vec4 out_Color;
+uniform sampler2D textureSampler;
+void main(){
 
-uniform sampler2D tex;
+	out_Color = texture(textureSampler, pass_textureCoords);
 
-void main() {
-	outColor = texture(tex, passTextureCoord) * vec4(passColor, 1.0);
 }

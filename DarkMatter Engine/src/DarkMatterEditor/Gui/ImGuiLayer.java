@@ -3,6 +3,7 @@ package DarkMatterEditor.Gui;
 import CoreEngine.EngineUtils.Time;
 import CoreEngine.Input.InputSystem;
 import CoreEngine.Main;
+import CoreEngine.Objects.Node;
 import CoreEngine.Objects.Scene;
 import CoreEngine.Observers.MouseListener;
 import CoreEngine.Window;
@@ -23,14 +24,15 @@ public class ImGuiLayer {
 
     // Mouse cursors provided by GLFW
     private final long[] mouseCursors = new long[ImGuiMouseCursor.COUNT];
-
+    public static Node obj;
     // LWJGL3 renderer (SHOULD be initialized)
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
     private ConsolePanel console = new ConsolePanel();
-    private GameViewPanel gameViewWindow = new GameViewPanel();
-    private PropertiesWindow propertiesWindow = new PropertiesWindow();
+    public GameViewPanel gameViewWindow = new GameViewPanel();
+    public static PropertiesWindow propertiesWindow = new PropertiesWindow();
     private MenuBar menuBar = new MenuBar();
     private EditorMain editor = new EditorMain();
+    private SceneHierarchyPanel hierarchyPanel = new SceneHierarchyPanel();
     public ImGuiLayer(long glfwWindow) {
         this.glfwWindow = glfwWindow;
         this.gameViewWindow = new GameViewPanel();
@@ -130,7 +132,7 @@ public class ImGuiLayer {
                 ImGui.setWindowFocus(null);
             }
 
-            if (!io.getWantCaptureMouse() || gameViewWindow.getWantCaptureMouse()) {
+            if (!io.getWantCaptureMouse() || !gameViewWindow.getWantCaptureMouse()) {
                 MouseListener.mouseButtonCallback(w, button, action, mods);
             }
         });
@@ -195,8 +197,8 @@ public class ImGuiLayer {
         setDarkTheme();
         currentScene.imgui();
         editor.update();
-        ImGui.showDemoWindow();
         gameViewWindow.imgui();
+        hierarchyPanel.imgui();
         console.imgui();
         propertiesWindow.update(dt, currentScene);
         propertiesWindow.imgui();
@@ -207,7 +209,6 @@ public class ImGuiLayer {
 
         endFrame();
     }
-
     private void startFrame(final float deltaTime) {
         // Get window properties and mouse position
         float[] winWidth = {Window.getWidth()};
@@ -263,8 +264,5 @@ public class ImGuiLayer {
         ImGuiStyle style = ImGui.getStyle();
         ImGui.styleColorsDark(style);
 
-    }
-    public PropertiesWindow getPropertiesWindow() {
-        return this.propertiesWindow;
     }
 }

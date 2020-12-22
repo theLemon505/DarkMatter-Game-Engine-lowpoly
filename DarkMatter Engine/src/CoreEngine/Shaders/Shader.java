@@ -13,12 +13,10 @@ import java.nio.FloatBuffer;
 public class Shader {
     private String vertexFile, fragmentFile;
     private int vertexID, fragmentID, programID;
-
     public Shader(String vertexPath, String fragmentPath) {
         vertexFile = FileUtils.loadAsString(vertexPath);
         fragmentFile = FileUtils.loadAsString(fragmentPath);
     }
-
     public void create() {
         programID = GL20.glCreateProgram();
         vertexID = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
@@ -56,11 +54,12 @@ public class Shader {
             return;
         }
     }
-
+    private void bindAttribute(int attribute, String variableName){
+        GL20.glBindAttribLocation(programID, attribute, variableName);
+    }
     public int getUniformLocation(String name) {
         return GL20.glGetUniformLocation(programID, name);
     }
-
     public void setUniform(String name, float value) {
         GL20.glUniform1f(getUniformLocation(name), value);
     }
@@ -89,6 +88,7 @@ public class Shader {
 
     public void bind() {
         GL20.glUseProgram(programID);
+        bindAttribute(1, "textureCoords");
     }
 
     public void unbind() {

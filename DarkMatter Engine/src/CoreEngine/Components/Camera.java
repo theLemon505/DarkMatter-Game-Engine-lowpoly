@@ -1,16 +1,21 @@
 package CoreEngine.Components;
 
 import CoreEngine.Maths.Vector3f;
-import org.lwjgl.glfw.GLFW;
 
 public class Camera extends Component {
-    private Vector3f position, rotation;
+    public void setPosition(Vector3f position) {
+        this.position = position;
+    }
+    public void setRotation(Vector3f rotation) {
+        this.rotation = rotation;
+    }
+
+    public Vector3f position, rotation;
     public Camera(Vector3f position, Vector3f rotation) {
         this.position = position;
         this.rotation = rotation;
     }
-
-    public void update() {
+    public void update(float dt) {
 
     }
 

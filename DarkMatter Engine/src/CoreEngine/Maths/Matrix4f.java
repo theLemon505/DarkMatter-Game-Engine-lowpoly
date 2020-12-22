@@ -1,5 +1,7 @@
 package CoreEngine.Maths;
 
+import java.util.Arrays;
+
 public class Matrix4f {
     public static final int SIZE = 4;
     private float[] elements = new float[SIZE * SIZE];
@@ -102,7 +104,7 @@ public class Matrix4f {
         Matrix4f rotYMatrix = Matrix4f.rotate(rotation.getY(), new Vector3f(0, 1, 0));
         Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
 
-        Matrix4f rotationMatrix = Matrix4f.multiply(rotZMatrix, Matrix4f.multiply(rotYMatrix, rotXMatrix));
+        Matrix4f rotationMatrix = Matrix4f.multiply(rotYMatrix, Matrix4f.multiply(rotZMatrix, rotXMatrix));
 
         result = Matrix4f.multiply(translationMatrix, rotationMatrix);
 
@@ -122,6 +124,28 @@ public class Matrix4f {
         }
 
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(elements);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Matrix4f other = (Matrix4f) obj;
+        if (!Arrays.equals(elements, other.elements))
+            return false;
+        return true;
     }
 
     public float get(int x, int y) {

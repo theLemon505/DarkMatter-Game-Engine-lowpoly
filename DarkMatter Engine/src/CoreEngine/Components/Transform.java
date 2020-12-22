@@ -3,36 +3,39 @@ package CoreEngine.Components;
 import CoreEngine.Maths.Vector3f;
 
 public class Transform extends Component{
-    private static Vector3f position;
-    private static Vector3f rotation;
+    private Vector3f position;
+    private Vector3f rotation;
 
-    public static Vector3f getPosition() {
+    public Vector3f getPosition() {
         return position;
     }
 
-    public static void setPosition(Vector3f position) {
-        Transform.position = position;
+    public void setPosition(Vector3f position) {
+        this.position = position;
     }
 
-    public static Vector3f getRotation() {
+    public Vector3f getRotation() {
         return rotation;
     }
 
-    public static void setRotation(Vector3f rotation) {
-        Transform.rotation = rotation;
+    public void setRotation(Vector3f rotation) {
+        this.rotation = rotation;
     }
 
-    public static Vector3f getScale() {
+    public Vector3f getScale() {
         return scale;
     }
 
-    public static void setScale(Vector3f scale) {
-        Transform.scale = scale;
+    public void setScale(Vector3f scale) {
+        this.scale = scale;
     }
 
-    private static Vector3f scale;
+    private Vector3f scale;
     public Transform copy() {
         return new Transform(position, rotation, scale);
+    }
+    public void update(float dt){
+
     }
     public Transform(Vector3f position, Vector3f rotation, Vector3f scale){
         this.position = position;

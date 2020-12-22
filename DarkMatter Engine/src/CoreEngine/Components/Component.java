@@ -1,9 +1,8 @@
 package CoreEngine.Components;
 
-import CoreEngine.Maths.Vector2f;
 import CoreEngine.Maths.Vector3f;
-import CoreEngine.Maths.Vector4f;
 import CoreEngine.Objects.Node;
+import CoreEngine.Window;
 import imgui.ImGui;
 
 import java.lang.reflect.Field;
@@ -13,15 +12,19 @@ public abstract class Component {
     private static int ID_COUNTER = 0;
     private int uid = -1;
 
+    public Node getGameObject() {
+        return gameObject;
+    }
+
+    public void setGameObject(Node gameObject) {
+        this.gameObject = gameObject;
+    }
+
     public transient Node gameObject = null;
 
     public void start() {
-
     }
-
-    public void update(float dt) {
-
-    }
+    public abstract void update(float dt);
 
     public void editorUpdate(float dt) {
 
@@ -48,19 +51,37 @@ public abstract class Component {
                 if (type == int.class) {
                     int val = (int)value;
                     field.set(this, ImGui.dragInt(name, new int[]{val}));
-                } else if (type == float.class) {
+                }
+                else if (type == float.class) {
                     float val = (float)value;
-                    field.set(this, ImGui.dragFloat(name, new float[]{val}));
-                } else if (type == boolean.class) {
+                    if(ImGui.dragFloat(name, new float[]{val})){
+                        val = val;
+                    }
+                }
+                else if (type == float.class) {
+                    double val = (double)value;
+                    if(ImGui.dragFloat(name, new float[]{(float)val})){
+                        val = val;
+                    }
+                }
+                else if (type == boolean.class) {
                     boolean val = (boolean)value;
                     if (ImGui.checkbox(name + ": ", val)) {
                         field.set(this, !val);
                     }
-                } else if (type == Vector3f.class) {
+                }
+                else if (type == Vector3f.class) {
                     Vector3f val = (Vector3f)value;
                     float[] imVec = {val.getX(), val.getY(), val.getZ()};
-                    if (ImGui.dragFloat3(name + ": ", imVec)) {
-                        val.set(imVec[0], imVec[1], imVec[2]);
+                    if(name != "rotation") {
+                        if (ImGui.dragFloat3(name + ": ", imVec)) {
+                            val.set(imVec[0], imVec[1], imVec[2]);
+                        }
+                    }
+                    if(name == "rotation"){
+                        if(ImGui.dragFloat3(name + ": ", imVec)){
+                            this.gameObject.getComponent(Transform.class).setRotation(new Vector3f(imVec[0], imVec[1], imVec[2]));
+                        }
                     }
                 }
 

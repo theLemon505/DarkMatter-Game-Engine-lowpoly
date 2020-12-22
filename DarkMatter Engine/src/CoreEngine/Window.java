@@ -1,38 +1,37 @@
 package CoreEngine;
 
-import CoreEngine.Components.MeshComponent;
-import CoreEngine.DefaultShapes.Cube;
+import CoreEngine.Components.Transform;
 import CoreEngine.Graphics.FrameBuffer;
-import CoreEngine.Graphics.Mesh;
-import CoreEngine.Graphics.Renderer;
 import CoreEngine.Input.InputSystem;
 import CoreEngine.Maths.Matrix4f;
 import CoreEngine.Maths.Vector3f;
+import CoreEngine.Models.TexturedModel;
 import CoreEngine.Objects.Node;
 import CoreEngine.Objects.Scene;
 import CoreEngine.Objects.Scenes.EditorSceneInitializer;
 import CoreEngine.Objects.Scenes.SceneInitializer;
 import CoreEngine.Observers.Events.Event;
+import CoreEngine.RenderingUtils.Loader;
+import CoreEngine.Models.RawModel;
+import CoreEngine.RenderingUtils.Renderer;
+import CoreEngine.RenderingUtils.TextureUtil.ModelTexture;
 import CoreEngine.Shaders.Shader;
-import DarkMatterEditor.ConsolePanel;
+import DarkMatterEditor.EditorCamera;
+import DarkMatterEditor.EditorRenderer.DebugRenderer;
 import DarkMatterEditor.Gui.ImGuiLayer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjglx.Sys;
 
-import java.awt.event.MouseListener;
-
-import static CoreEngine.Observers.Events.EventType.*;
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Window {
+    private Loader loader = new Loader();
+    private Renderer renderer = new Renderer();
     public Shader defaultShader;
-    private Renderer renderer;
+    public static EditorCamera editorCam;
     private int width, height;
     private String title;
     private long glfwWindow;
@@ -42,28 +41,28 @@ public class Window {
     private static Matrix4f projection;
     //private PickingTexture pickingTexture;
     private boolean runtimePlaying = false;
-
     private static Window window = null;
 
-    private static Scene currentScene;
-
+    public static Scene currentScene;
+    public static RawModel model;
     private Window() {
         this.width = 1920;
         this.height = 1080;
         this.title = "DarkMatter Engine v0.1";
-        projection = Matrix4f.projection(70.0f, (float) width / (float) height, 0.1f, 1000.0f);
+        projection = Matrix4f.projection(80.0f, (float) width / (float) height, 0.1f, 1000.0f);
+
     }
 
     public static void changeScene(SceneInitializer sceneInitializer) {
         if (currentScene != null) {
             currentScene.destroy();
         }
-
         //getImguiLayer().getPropertiesWindow().setActiveGameObject(null);
         currentScene = new Scene(sceneInitializer);
-        currentScene.load();
         currentScene.init();
+        currentScene.createRenderer();
         currentScene.start();
+
     }
     public static Matrix4f getProjectionMatrix() {
         return projection;
@@ -83,8 +82,6 @@ public class Window {
     public void run() {
 
         init();
-        loop();
-
         // Free the memory
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
@@ -147,24 +144,42 @@ public class Window {
 
         this.imguiLayer = new ImGuiLayer(glfwWindow);
         this.imguiLayer.initImGui();
-
+        defaultShader = new Shader("src/CoreEngine/Shaders/MainVertex.glsl", "src/CoreEngine/Shaders/MainFragmentShader.glsl");
+        //Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
+        defaultShader.create();
         Window.changeScene(new EditorSceneInitializer());
-
     }
 
     public void loop() {
         float beginTime = (float) glfwGetTime();
         float endTime;
         float dt = -1.0f;
-        defaultShader = new Shader("src/CoreEngine/Shaders/MainVertex.glsl", "src/CoreEngine/Shaders/MainFragmentShader.glsl");
-        //Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
-        defaultShader.create();
-        renderer = new Renderer(defaultShader);
-        Cube cube = new Cube();
-        Mesh mesh = cube.mesh;
-        Node obj = new Node("default");
-        obj.addComponent(new MeshComponent(new Vector3f(0,0,0), new Vector3f(0,0,0), new Vector3f(1,1,1), mesh));
+        Node obj = currentScene.createGameObject("default");
         currentScene.addGameObjectToScene(obj);
+        float[] vertices = {
+                -0.5f, 0.5f, 0f,//v0
+                -0.5f, -0.5f, 0f,//v1
+                0.5f, -0.5f, 0f,//v2
+                0.5f, 0.5f, 0f,//v3
+        };
+
+        int[] indices = {
+                0,1,3,//top left triangle (v0, v1, v3)
+                3,1,2//bottom right triangle (v3, v1, v2)
+        };
+        float[] textureCoords = {
+          0,0,
+          0,0.75f,
+          0.75f,0.75f,
+          0.75f,0
+        };
+        model = loader.loadToVAO(vertices, textureCoords, indices);
+        ModelTexture texure = new ModelTexture(loader.loadTexture("Capture4"));
+        TexturedModel texturedModel = new TexturedModel(model, texure);
+        Node n = currentScene.createGameObject("textNode");
+        n.addComponent(texturedModel);
+        n.getComponent(Transform.class).setPosition(new Vector3f(0,0,-25));
+        currentScene.addGameObjectToScene(n);
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
@@ -184,29 +199,30 @@ public class Window {
             glEnable(GL_BLEND);
 
             // Render pass 2. Render actual game
-            drawGrid();
-            renderer.renderMesh();
             this.framebuffer.bind();
+            DebugRenderer.beginFrame();
             glClearColor(0.5f, 0.5f, 0.5f, 1);
             glClear(GL_COLOR_BUFFER_BIT);
-
+            renderer.renderAll(defaultShader);
+            renderer.render(n, defaultShader);
             if (dt >= 0) {
+                DebugRenderer.draw();
                 if (runtimePlaying) {
                     currentScene.update(dt);
                 } else {
                     currentScene.editorUpdate(dt);
                 }
-                //currentScene.render();
             }
             this.framebuffer.unbind();
 
             this.imguiLayer.update(dt, currentScene);
             glfwSwapBuffers(glfwWindow);
-
             endTime = (float) glfwGetTime();
             dt = endTime - beginTime;
             beginTime = endTime;
         }
+        loader.cleanUp();
+        defaultShader.destroy();
     }
 
     public static int getWidth() {
@@ -252,27 +268,6 @@ public class Window {
                 Window.changeScene(new EditorSceneInitializer());
             case SaveLevel:
                 currentScene.save();
-        }
-    }
-    public void drawGrid() {
-        for (int i = 0; i < 100; i++) {
-            glPushMatrix();
-            if (i < 50) {
-                glTranslatef(0, i, 0);
-            }
-            if (i >= 50) {
-                glTranslatef(i - 20, 0, 0);
-                glRotatef(-90, 0, 1, 0);
-            }
-            glBegin(GL_LINES);
-            glColor3f(1, 1, 1);
-            glLineWidth(1);
-            glVertex3f(0, -0.1f, 0);
-            glVertex3f(19, -0.1f, 0);
-            glEnd();
-            glPopMatrix();
-            System.out.println("renderingGrid");
-            ConsolePanel.log("rendering Grid ");
         }
     }
 }

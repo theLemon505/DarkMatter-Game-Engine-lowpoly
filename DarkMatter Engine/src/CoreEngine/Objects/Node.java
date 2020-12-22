@@ -11,7 +11,7 @@ public class Node {
     private static int ID_COUNTER = 0;
     private int uid = -1;
 
-    private String name;
+    public String name;
     private List<Component> components;
     public Transform transform;
     private boolean doSerialization = true;
@@ -20,7 +20,6 @@ public class Node {
     public Node(String name) {
         this.name = name;
         this.components = new ArrayList<>();
-
         this.uid = ID_COUNTER++;
     }
 
@@ -70,6 +69,7 @@ public class Node {
     public void start() {
         for (int i=0; i < components.size(); i++) {
             components.get(i).start();
+
         }
     }
 

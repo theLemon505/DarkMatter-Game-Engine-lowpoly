@@ -9,11 +9,22 @@ import static org.lwjgl.stb.STBImage.*;
     public class Texture {
         private String filepath;
         private int texID;
+
+        public ByteBuffer getBuffer() {
+            return buffer;
+        }
+
+        private ByteBuffer buffer;
         private int width, height;
 
-        //    public Texture(String filepath) {
-//
-//    }
+        public Texture(String filepath) {
+
+        }
+        public Texture(ByteBuffer buffer,int width, int height){
+            this.width = width;
+            this.height = height;
+            this.buffer = buffer;
+        }
         public Texture() {
             texID = -1;
             width = -1;
