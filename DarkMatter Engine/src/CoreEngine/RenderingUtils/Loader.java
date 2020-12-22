@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjglx.Sys;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
@@ -25,6 +26,9 @@ public class Loader {
         int vaoID = createVAO();
         bindIndicesBuffer(indices);
         storeDataInAttributeList(0, 3, positions);
+        for(int i = 0; i < positions.length; i++){
+            System.out.println(positions[i]);
+        }
         storeDataInAttributeList(1, 2, textureCoords);
         unbindVAO();
         return new RawModel(vaoID, indices.length);

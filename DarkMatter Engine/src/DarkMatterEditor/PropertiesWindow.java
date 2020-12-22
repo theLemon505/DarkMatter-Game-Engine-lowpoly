@@ -1,5 +1,7 @@
 package DarkMatterEditor;
 
+import CoreEngine.EngineUtils.Colors;
+import CoreEngine.EngineUtils.Material;
 import CoreEngine.Models.TexturedModel;
 import CoreEngine.Objects.Node;
 import CoreEngine.Objects.Scene;
@@ -31,7 +33,8 @@ public class PropertiesWindow {
                     Loader loader = new Loader();
                     int texture = loader.loadTexture("Original");
                     ModelTexture texturei = new ModelTexture(texture);
-                    activeGameObject.addComponent(new TexturedModel(Window.model, texturei));
+                    Material mat = new Material(Colors.white, texturei);
+                    activeGameObject.addComponent(new TexturedModel(Window.model, mat));
                 }
                 ImGui.endPopup();
             }

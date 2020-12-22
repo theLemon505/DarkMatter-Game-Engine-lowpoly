@@ -1,9 +1,11 @@
 package CoreEngine;
 
 import CoreEngine.Components.Transform;
+import CoreEngine.EngineUtils.Colors;
+import CoreEngine.EngineUtils.Material;
+import CoreEngine.EngineUtils.Time;
 import CoreEngine.Graphics.FrameBuffer;
 import CoreEngine.Input.InputSystem;
-import CoreEngine.Maths.Matrix4f;
 import CoreEngine.Maths.Vector3f;
 import CoreEngine.Models.TexturedModel;
 import CoreEngine.Objects.Node;
@@ -16,11 +18,12 @@ import CoreEngine.Models.RawModel;
 import CoreEngine.RenderingUtils.Renderer;
 import CoreEngine.RenderingUtils.TextureUtil.ModelTexture;
 import CoreEngine.Shaders.Shader;
+import CoreEngine.Shaders.StaticShader;
 import DarkMatterEditor.EditorCamera;
-import DarkMatterEditor.EditorRenderer.DebugRenderer;
 import DarkMatterEditor.Gui.ImGuiLayer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import org.lwjglx.util.vector.Matrix4f;
 
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -30,7 +33,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class Window {
     private Loader loader = new Loader();
     private Renderer renderer = new Renderer();
-    public Shader defaultShader;
+    public StaticShader defaultShader;
     public static EditorCamera editorCam;
     private int width, height;
     private String title;
@@ -42,15 +45,15 @@ public class Window {
     //private PickingTexture pickingTexture;
     private boolean runtimePlaying = false;
     private static Window window = null;
-
+    public static float FOV = 80;
+    public static float NEAR_PLANE =  0.1f;
+    public static float FAR_PLANE = 1000;
     public static Scene currentScene;
     public static RawModel model;
     private Window() {
         this.width = 1920;
         this.height = 1080;
         this.title = "DarkMatter Engine v0.1";
-        projection = Matrix4f.projection(80.0f, (float) width / (float) height, 0.1f, 1000.0f);
-
     }
 
     public static void changeScene(SceneInitializer sceneInitializer) {
@@ -144,9 +147,8 @@ public class Window {
 
         this.imguiLayer = new ImGuiLayer(glfwWindow);
         this.imguiLayer.initImGui();
-        defaultShader = new Shader("src/CoreEngine/Shaders/MainVertex.glsl", "src/CoreEngine/Shaders/MainFragmentShader.glsl");
+        defaultShader = new StaticShader();
         //Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
-        defaultShader.create();
         Window.changeScene(new EditorSceneInitializer());
     }
 
@@ -173,13 +175,17 @@ public class Window {
           0.75f,0.75f,
           0.75f,0
         };
+
         model = loader.loadToVAO(vertices, textureCoords, indices);
         ModelTexture texure = new ModelTexture(loader.loadTexture("Capture4"));
-        TexturedModel texturedModel = new TexturedModel(model, texure);
+        Material mat = new Material(Colors.darkGrey, texure);
+        TexturedModel texturedModel = new TexturedModel(model, mat);
         Node n = currentScene.createGameObject("textNode");
         n.addComponent(texturedModel);
         n.getComponent(Transform.class).setPosition(new Vector3f(0,0,-25));
         currentScene.addGameObjectToScene(n);
+        renderer.prepare(defaultShader);
+
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
@@ -200,19 +206,19 @@ public class Window {
 
             // Render pass 2. Render actual game
             this.framebuffer.bind();
-            DebugRenderer.beginFrame();
             glClearColor(0.5f, 0.5f, 0.5f, 1);
             glClear(GL_COLOR_BUFFER_BIT);
-            renderer.renderAll(defaultShader);
-            renderer.render(n, defaultShader);
+            defaultShader.start();
+
+            renderer.renderAll(currentScene.getGameObjects(), defaultShader);
             if (dt >= 0) {
-                DebugRenderer.draw();
                 if (runtimePlaying) {
                     currentScene.update(dt);
                 } else {
                     currentScene.editorUpdate(dt);
                 }
             }
+            defaultShader.stop();
             this.framebuffer.unbind();
 
             this.imguiLayer.update(dt, currentScene);
@@ -222,7 +228,7 @@ public class Window {
             beginTime = endTime;
         }
         loader.cleanUp();
-        defaultShader.destroy();
+        defaultShader.cleanUp();
     }
 
     public static int getWidth() {

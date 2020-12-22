@@ -1,6 +1,7 @@
 package CoreEngine.Models;
 
 import CoreEngine.Components.Component;
+import CoreEngine.EngineUtils.Material;
 import CoreEngine.RenderingUtils.TextureUtil.ModelTexture;
 
 public class TexturedModel extends Component {
@@ -8,16 +9,19 @@ public class TexturedModel extends Component {
         return rawModel;
     }
 
-    public ModelTexture getTexture() {
-        return texture;
+    public Material getMat() {
+        return mat;
     }
+
+    private Material mat;
 
     private RawModel rawModel;
     private ModelTexture texture;
 
-    public TexturedModel(RawModel model, ModelTexture texture){
+    public TexturedModel(RawModel model, Material mat){
         this.rawModel =model;
-        this.texture = texture;
+        this.mat = mat;
+        this.texture = mat.getTexture();
     }
 
 

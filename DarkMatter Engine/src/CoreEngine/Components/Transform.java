@@ -3,8 +3,8 @@ package CoreEngine.Components;
 import CoreEngine.Maths.Vector3f;
 
 public class Transform extends Component{
-    private Vector3f position;
-    private Vector3f rotation;
+    public Vector3f position;
+    public Vector3f rotation;
 
     public Vector3f getPosition() {
         return position;
@@ -29,8 +29,10 @@ public class Transform extends Component{
     public void setScale(Vector3f scale) {
         this.scale = scale;
     }
-
-    private Vector3f scale;
+    public float getTotalScale(){
+        return (scale.x + scale.y + scale.z) / 3;
+    }
+    public Vector3f scale;
     public Transform copy() {
         return new Transform(position, rotation, scale);
     }

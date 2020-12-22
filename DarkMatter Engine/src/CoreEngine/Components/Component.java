@@ -1,9 +1,11 @@
 package CoreEngine.Components;
 
 import CoreEngine.Maths.Vector3f;
+import CoreEngine.Models.TexturedModel;
 import CoreEngine.Objects.Node;
 import CoreEngine.Window;
 import imgui.ImGui;
+import imgui.type.ImInt;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -43,6 +45,10 @@ public abstract class Component {
                 if (isPrivate) {
                     field.setAccessible(true);
                 }
+                boolean isPublic = Modifier.isPublic(field.getModifiers());
+                if (isPublic) {
+                    field.setAccessible(true);
+                }
 
                 Class type = field.getType();
                 Object value = field.get(this);
@@ -70,6 +76,22 @@ public abstract class Component {
                         field.set(this, !val);
                     }
                 }
+                else if (type == TexturedModel.class){
+                    TexturedModel val = (TexturedModel)value;
+                    ImInt v = new ImInt(val.getRawModel().getVaoID());
+                    float[] col = new float[]{val.getMat().getColor().getX(), val.getMat().getColor().getY(), val.getMat().getColor().getZ()};
+                    if(ImGui.colorPicker3("Color", col)){
+                        val.getMat().setColor(new Vector3f(col[0], col[1], col[2]));
+                    }
+                    if(ImGui.inputInt("vaoID: ", v)){
+                        ImGui.treeNode("vaoID: " + v);
+                    }
+                    ImInt a = new ImInt(val.getMat().getTexture().getID());
+                    if(ImGui.inputInt("textureID: ", a)){
+                        ImGui.treeNode("textureID: " + a);
+                    }
+                }
+
                 else if (type == Vector3f.class) {
                     Vector3f val = (Vector3f)value;
                     float[] imVec = {val.getX(), val.getY(), val.getZ()};
@@ -84,8 +106,6 @@ public abstract class Component {
                         }
                     }
                 }
-
-
                 if (isPrivate) {
                     field.setAccessible(false);
                 }

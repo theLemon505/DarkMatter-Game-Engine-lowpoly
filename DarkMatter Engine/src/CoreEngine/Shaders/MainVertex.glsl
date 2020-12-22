@@ -1,15 +1,18 @@
-#version 460 core
+#version 150
 
 in vec3 position;
-in vec2 textureCoords;
+in vec2 textureCoordinates;
 
-out vec2 pass_textureCoords;
+out vec3 colour;
+out vec2 pass_textureCoordinates;
 
-uniform mat4 model;
-uniform mat4 viewMat;
-uniform mat4 projection;
-void main(){
+uniform mat4 transformationMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
 
-	gl_Position =  projection * viewMat * model * vec4(position * 10,1.0);
-	pass_textureCoords = textureCoords;
+void main(void){
+
+	gl_Position = projectionMatrix * viewMatrix * transformationMatrix * vec4(position,1.0);
+	pass_textureCoordinates = textureCoordinates;
+	colour = vec3(position.x+0.5,0.0,position.y+0.5);
 }

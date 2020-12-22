@@ -1,7 +1,7 @@
 package CoreEngine.Maths;
 
 public class Vector3f {
-    private float x;
+    public float x;
 
     public void setX(float x) {
         this.x = x;
@@ -15,7 +15,7 @@ public class Vector3f {
         this.z = z;
     }
 
-    private float y;
+    public float y;
 
     public float getX() {
         return x;
@@ -29,7 +29,7 @@ public class Vector3f {
         return z;
     }
 
-    private float z;
+    public float z;
     public Vector3f(float x, float y, float z){
         this.x = x;
         this.y = y;

@@ -1,11 +1,10 @@
 package CoreEngine.Objects;
 
 import CoreEngine.Components.*;
+import CoreEngine.EngineUtils.Time;
 import CoreEngine.Maths.Vector3f;
 import CoreEngine.Objects.Scenes.SceneInitializer;
 import CoreEngine.Shaders.Shader;
-import CoreEngine.Window;
-import DarkMatterEditor.EditorRenderer.DebugRenderer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -21,6 +20,7 @@ public class Scene {
     public static Camera camera;
     private boolean isRunning;
     private List<Node> gameObjects;
+
     private Shader defaultShader;
     private SceneInitializer sceneInitializer;
     public Scene(SceneInitializer sceneInitializer) {
@@ -78,12 +78,10 @@ public class Scene {
     }
 
     public void editorUpdate(float dt) {
-        DebugRenderer.addLine(new Vector3f(0,0,1), new Vector3f(1,1,1));
 
         for (int i=0; i < gameObjects.size(); i++) {
             Node go = gameObjects.get(i);
             go.editorUpdate(dt);
-
             if (go.isDead()) {
                 gameObjects.remove(i);
                 i--;
