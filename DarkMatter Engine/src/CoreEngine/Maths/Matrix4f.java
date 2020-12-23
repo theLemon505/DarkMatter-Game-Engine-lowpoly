@@ -65,12 +65,11 @@ public class Matrix4f {
 
     public static Matrix4f transform(Vector3f position, Vector3f rotation, Vector3f scale) {
         Matrix4f result = Matrix4f.identity();
-
-        Matrix4f translationMatrix = Matrix4f.translate(position);
+        Matrix4f scaleMatrix = Matrix4f.scale(scale);
         Matrix4f rotXMatrix = Matrix4f.rotate(rotation.getX(), new Vector3f(1, 0, 0));
         Matrix4f rotYMatrix = Matrix4f.rotate(rotation.getY(), new Vector3f(0, 1, 0));
         Matrix4f rotZMatrix = Matrix4f.rotate(rotation.getZ(), new Vector3f(0, 0, 1));
-        Matrix4f scaleMatrix = Matrix4f.scale(scale);
+        Matrix4f translationMatrix = Matrix4f.translate(position);
 
         Matrix4f rotationMatrix = Matrix4f.multiply(rotXMatrix, Matrix4f.multiply(rotYMatrix, rotZMatrix));
 

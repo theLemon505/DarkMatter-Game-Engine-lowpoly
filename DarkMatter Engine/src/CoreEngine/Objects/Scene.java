@@ -5,6 +5,7 @@ import CoreEngine.EngineUtils.Time;
 import CoreEngine.Maths.Vector3f;
 import CoreEngine.Objects.Scenes.SceneInitializer;
 import CoreEngine.Shaders.Shader;
+import CoreEngine.Window;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -21,7 +22,6 @@ public class Scene {
     private boolean isRunning;
     private List<Node> gameObjects;
 
-    private Shader defaultShader;
     private SceneInitializer sceneInitializer;
     public Scene(SceneInitializer sceneInitializer) {
         this.sceneInitializer = sceneInitializer;
@@ -102,7 +102,6 @@ public class Scene {
     }
 
     public void render() {
-
     }
 
     public Camera camera() {

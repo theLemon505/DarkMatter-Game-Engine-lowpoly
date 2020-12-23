@@ -29,7 +29,7 @@
     "isDead": false
   },
   {
-    "uid": 2,
+    "uid": 3,
     "name": "textNode",
     "components": [
       {
@@ -50,23 +50,260 @@
             "y": 1.0,
             "z": 1.0
           },
-          "uid": 3
+          "uid": 4
         }
       },
       {
-        "type": "CoreEngine.Models.TexturedModel",
+        "type": "CoreEngine.Components.TexturedModel",
         "properties": {
+          "mat": {
+            "color": {
+              "x": 0.2,
+              "y": 0.2,
+              "z": 0.2
+            },
+            "texture": {
+              "textureID": 3
+            }
+          },
           "rawModel": {
             "vaoID": 1,
-            "vertexCount": 6
+            "vertexCount": 300000
           },
           "texture": {
             "textureID": 3
           },
-          "uid": 4
+          "uid": 6
         }
       }
     ],
+    "doSerialization": true,
+    "isDead": false
+  },
+  {
+    "uid": 2,
+    "name": "light",
+    "components": [
+      {
+        "type": "CoreEngine.Components.Transform",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 3
+        }
+      },
+      {
+        "type": "CoreEngine.Components.Light",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": -10.0,
+            "z": 0.0
+          },
+          "Intensity": 10.0,
+          "color": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 5
+        }
+      }
+    ],
+    "doSerialization": true,
+    "isDead": false
+  },
+  {
+    "uid": 4,
+    "name": "default",
+    "components": [
+      {
+        "type": "CoreEngine.Components.Transform",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 2
+        }
+      }
+    ],
+    "transform": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "uid": 2
+    },
+    "doSerialization": true,
+    "isDead": false
+  },
+  {
+    "uid": 5,
+    "name": "textNode",
+    "components": [
+      {
+        "type": "CoreEngine.Components.Transform",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": -12.0,
+            "z": -25.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 4
+        }
+      },
+      {
+        "type": "CoreEngine.Components.TexturedModel",
+        "properties": {
+          "mat": {
+            "color": {
+              "x": 0.2,
+              "y": 0.2,
+              "z": 0.2
+            },
+            "texture": {
+              "textureID": 3
+            }
+          },
+          "rawModel": {
+            "vaoID": 1,
+            "vertexCount": 300000
+          },
+          "texture": {
+            "textureID": 3
+          },
+          "uid": 6
+        }
+      }
+    ],
+    "transform": {
+      "position": {
+        "x": 0.0,
+        "y": -12.0,
+        "z": -25.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "uid": 4
+    },
+    "doSerialization": true,
+    "isDead": false
+  },
+  {
+    "uid": 6,
+    "name": "light",
+    "components": [
+      {
+        "type": "CoreEngine.Components.Transform",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 3
+        }
+      },
+      {
+        "type": "CoreEngine.Components.Light",
+        "properties": {
+          "position": {
+            "x": 0.0,
+            "y": -10.0,
+            "z": 0.0
+          },
+          "Intensity": 10.0,
+          "color": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "uid": 5
+        }
+      }
+    ],
+    "transform": {
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "uid": 3
+    },
     "doSerialization": true,
     "isDead": false
   }

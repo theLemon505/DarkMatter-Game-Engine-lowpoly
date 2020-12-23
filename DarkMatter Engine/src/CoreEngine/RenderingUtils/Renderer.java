@@ -1,68 +1,98 @@
 package CoreEngine.RenderingUtils;
 
-import CoreEngine.Components.Camera;
+import CoreEngine.Components.Light;
 import CoreEngine.Components.Transform;
 import CoreEngine.DefaultShapes.Maths;
+import CoreEngine.Maths.Matrix4f;
 import CoreEngine.Models.RawModel;
-import CoreEngine.Models.TexturedModel;
+import CoreEngine.Components.TexturedModel;
 import CoreEngine.Objects.Node;
 import CoreEngine.Shaders.Shader;
-import CoreEngine.Shaders.StaticShader;
 import CoreEngine.Window;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-import org.lwjglx.util.vector.Matrix4f;
+import org.lwjgl.opengl.*;
 import org.lwjglx.util.vector.Vector3f;
 
 import java.util.List;
+import java.util.Map;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 public class Renderer {
-    private Matrix4f projectionMatrix;
-    private StaticShader shader;
-    public void prepare(StaticShader shader) {
+    private Shader shader;
+    public void init(Shader shader){
         this.shader = shader;
-        createProjectionMatrix();
-        shader.loadProjectionMatrix(projectionMatrix);
+        shader.create();
+    }
+    public void prepare() {
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GL11.glEnable(GL_CULL_FACE);
+        GL11.glCullFace(GL_BACK);
+        glClearColor(0.5f, 0.5f, 0.5f, 1);
     }
 
-    public void render(Node obj) {
-        TexturedModel model = obj.getComponent(TexturedModel.class);
-        RawModel rawModel = model.getRawModel();
-        GL30.glBindVertexArray(rawModel.getVaoID());
-        GL20.glEnableVertexAttribArray(0);
-        GL20.glEnableVertexAttribArray(1);
-        Matrix4f transformationMatrix = Maths.createTransformationMatrix(new Vector3f(obj.getComponent(Transform.class).position.x, obj.getComponent(Transform.class).position.y, obj.getComponent(Transform.class).position.z),
-                obj.getComponent(Transform.class).rotation.x, obj.getComponent(Transform.class).rotation.y, obj.getComponent(Transform.class).rotation.z, obj.getComponent(Transform.class).getTotalScale());
-        shader.loadTransformationMatrix(transformationMatrix);
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getMat().getTexture().getID());
-        GL11.glDrawElements(GL11.GL_TRIANGLES, rawModel.getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-        GL20.glDisableVertexAttribArray(0);
-        GL20.glDisableVertexAttribArray(1);
-        GL30.glBindVertexArray(0);
-    }
-    private void createProjectionMatrix(){
-        float aspectRatio = (float) Window.getWidth() / (float) Window.getHeight();
-        float y_scale = (float) ((1f / Math.tan(Math.toRadians(Window.FOV / 2f))) * aspectRatio);
-        float x_scale = y_scale / aspectRatio;
-        float frustum_length = Window.FAR_PLANE - Window.NEAR_PLANE;
 
-        projectionMatrix = new Matrix4f();
-        projectionMatrix.m00 = x_scale;
-        projectionMatrix.m11 = y_scale;
-        projectionMatrix.m22 = -((Window.FAR_PLANE + Window.NEAR_PLANE) / frustum_length);
-        projectionMatrix.m23 = -1;
-        projectionMatrix.m32 = -((2 * Window.NEAR_PLANE * Window.FAR_PLANE) / frustum_length);
-        projectionMatrix.m33 = 0;
-    }
-    public void renderAll(List<Node> nodes,Shader shader) {
-        for (Node obj : nodes
-        ) {
-            if (obj.getComponent(TexturedModel.class) != null) {
-                render(obj);
+    public void render(Map<TexturedModel, List<Node>> nodes){
+        if(nodes.keySet() != null) {
+            for (TexturedModel model : nodes.keySet()) {
+                if (model != null) {
+                    prepareTexturedModel(model);
+                    List<Node> batch = nodes.get(model);
+                    for (Node node : batch) {
+                        prapareNode(node);
+                        shader.bind();
+                        GL11.glDrawElements(GL11.GL_TRIANGLES, model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+                        shader.unbind();
+                        unbindTexturedModel();
+                    }
+                }
             }
         }
     }
+    private void prepareTexturedModel(TexturedModel model){
+        if(model != null) {
+            if (model.getRawModel() != null) {
+                RawModel object = model.getRawModel();
+                GL30.glBindVertexArray(object.getVaoID());
+                GL20.glEnableVertexAttribArray(0);
+                GL20.glEnableVertexAttribArray(1);
+                GL20.glEnableVertexAttribArray(2);
+                GL20.glEnableVertexAttribArray(3);
+                shader.setUniform("shineDamper", model.getMat().getShineDamper());
+                shader.setUniform("reflectivity", model.getMat().getReflectivity());
+                shader.setUniform("color", model.getMat().getColor());
+                GL13.glActiveTexture(GL13.GL_TEXTURE0);
+                GL11.glBindTexture(GL11.GL_TEXTURE_2D, model.getMat().getTexture().getID());
+            } else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+    private void unbindTexturedModel(){
+        GL20.glDisableVertexAttribArray(0);
+        GL20.glDisableVertexAttribArray(1);
+        GL20.glDisableVertexAttribArray(2);
+        GL20.glDisableVertexAttribArray(3);
+        GL30.glBindVertexArray(0);
+
+    }
+    public void end(){
+        shader.destroy();
+    }
+    private void prapareNode(Node node){
+        org.lwjglx.util.vector.Matrix4f matMod = Maths.createTransformationMatrix(new Vector3f(node.getComponent(Transform.class).getPosition().x,node.getComponent(Transform.class).getPosition().y,node.getComponent(Transform.class).getPosition().z),
+                node.getComponent(Transform.class).getRotation().x,node.getComponent(Transform.class).getRotation().y,node.getComponent(Transform.class).getRotation().z,node.getComponent(Transform.class).getTotalScale());
+
+        shader.setUniform("model", matMod);
+        shader.setUniform("view", Matrix4f.view(Window.currentScene.camera.getPosition(), Window.currentScene.camera.getRotation()));
+        shader.setUniform("projection", Window.getProjectionMatrix());
+        shader.setUniform("lightPosition", Window.light.getComponent(Transform.class).position);
+        shader.setUniform("lightColor", Window.light.getComponent(Light.class).getColor());
+        shader.setUniform("intensity", Window.light.getComponent(Light.class).getIntensity());
+    }
+
 }

@@ -1,17 +1,16 @@
 package DarkMatterEditor;
 
+import CoreEngine.Components.Light;
+import CoreEngine.Components.Transform;
 import CoreEngine.EngineUtils.Colors;
 import CoreEngine.EngineUtils.Material;
-import CoreEngine.Models.TexturedModel;
+import CoreEngine.Components.TexturedModel;
 import CoreEngine.Objects.Node;
 import CoreEngine.Objects.Scene;
-import CoreEngine.Observers.MouseListener;
 import CoreEngine.RenderingUtils.Loader;
 import CoreEngine.RenderingUtils.TextureUtil.ModelTexture;
 import CoreEngine.Window;
 import imgui.ImGui;
-
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 public class PropertiesWindow {
     private static Node activeGameObject = null;
@@ -35,6 +34,10 @@ public class PropertiesWindow {
                     ModelTexture texturei = new ModelTexture(texture);
                     Material mat = new Material(Colors.white, texturei);
                     activeGameObject.addComponent(new TexturedModel(Window.model, mat));
+                }
+                if (ImGui.menuItem("Add Light")) {
+                    Light light = new Light(getActiveGameObject().getComponent(Transform.class).position,getActiveGameObject().getComponent(Transform.class).rotation, 10);
+                    activeGameObject.addComponent(light);
                 }
                 ImGui.endPopup();
             }

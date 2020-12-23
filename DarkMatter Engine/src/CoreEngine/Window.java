@@ -1,13 +1,15 @@
 package CoreEngine;
 
+import CoreEngine.Components.Light;
 import CoreEngine.Components.Transform;
 import CoreEngine.EngineUtils.Colors;
 import CoreEngine.EngineUtils.Material;
-import CoreEngine.EngineUtils.Time;
+import CoreEngine.EngineUtils.OBJLoader;
 import CoreEngine.Graphics.FrameBuffer;
 import CoreEngine.Input.InputSystem;
+import CoreEngine.Maths.Matrix4f;
 import CoreEngine.Maths.Vector3f;
-import CoreEngine.Models.TexturedModel;
+import CoreEngine.Components.TexturedModel;
 import CoreEngine.Objects.Node;
 import CoreEngine.Objects.Scene;
 import CoreEngine.Objects.Scenes.EditorSceneInitializer;
@@ -15,15 +17,14 @@ import CoreEngine.Objects.Scenes.SceneInitializer;
 import CoreEngine.Observers.Events.Event;
 import CoreEngine.RenderingUtils.Loader;
 import CoreEngine.Models.RawModel;
+import CoreEngine.RenderingUtils.MasterRenderer;
 import CoreEngine.RenderingUtils.Renderer;
 import CoreEngine.RenderingUtils.TextureUtil.ModelTexture;
 import CoreEngine.Shaders.Shader;
-import CoreEngine.Shaders.StaticShader;
 import DarkMatterEditor.EditorCamera;
 import DarkMatterEditor.Gui.ImGuiLayer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjglx.util.vector.Matrix4f;
 
 import static java.sql.Types.NULL;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -32,10 +33,11 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Window {
     private Loader loader = new Loader();
-    private Renderer renderer = new Renderer();
-    public StaticShader defaultShader;
+    private MasterRenderer renderer = new MasterRenderer();
+    public Shader defaultShader;
     public static EditorCamera editorCam;
     private int width, height;
+    public static Node light;
     private String title;
     private long glfwWindow;
     private ImGuiLayer imguiLayer;
@@ -95,6 +97,7 @@ public class Window {
     }
 
     public void init() {
+        projection = Matrix4f.projection(FOV, getTargetAspectRatio(), NEAR_PLANE, FAR_PLANE);
         // Setup an error callback
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -122,7 +125,6 @@ public class Window {
             Window.setWidth(newWidth);
             Window.setHeight(newHeight);
         });
-
         // Make the OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
         // Enable v-sync
@@ -144,48 +146,33 @@ public class Window {
         this.framebuffer = new FrameBuffer(3840, 2160);
         //this.pickingTexture = new PickingTexture(3840, 2160);
         glViewport(0, 0, 3840, 2160);
-
+        defaultShader = new Shader("src/CoreEngine/Shaders/MainVertex.glsl", "src/CoreEngine/Shaders/MainFragmentShader.glsl");
         this.imguiLayer = new ImGuiLayer(glfwWindow);
-        this.imguiLayer.initImGui();
-        defaultShader = new StaticShader();
-        //Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
+        this.imguiLayer.initImGui();//Shader pickingShader = AssetPool.getShader("assets/shaders/pickingShader.glsl");
         Window.changeScene(new EditorSceneInitializer());
     }
 
     public void loop() {
+        defaultShader.create();
         float beginTime = (float) glfwGetTime();
         float endTime;
         float dt = -1.0f;
         Node obj = currentScene.createGameObject("default");
         currentScene.addGameObjectToScene(obj);
-        float[] vertices = {
-                -0.5f, 0.5f, 0f,//v0
-                -0.5f, -0.5f, 0f,//v1
-                0.5f, -0.5f, 0f,//v2
-                0.5f, 0.5f, 0f,//v3
-        };
 
-        int[] indices = {
-                0,1,3,//top left triangle (v0, v1, v3)
-                3,1,2//bottom right triangle (v3, v1, v2)
-        };
-        float[] textureCoords = {
-          0,0,
-          0,0.75f,
-          0.75f,0.75f,
-          0.75f,0
-        };
-
-        model = loader.loadToVAO(vertices, textureCoords, indices);
-        ModelTexture texure = new ModelTexture(loader.loadTexture("Capture4"));
+        model = OBJLoader.loadObjModel("dragon", loader);
+        ModelTexture texure = new ModelTexture(loader.loadTexture("stallTexture"));
         Material mat = new Material(Colors.darkGrey, texure);
         TexturedModel texturedModel = new TexturedModel(model, mat);
+        Light lighting = new Light(new Vector3f(0,-10,0), Colors.white, 10);
+        light = currentScene.createGameObject("light");
         Node n = currentScene.createGameObject("textNode");
+        light.addComponent(lighting);
         n.addComponent(texturedModel);
         n.getComponent(Transform.class).setPosition(new Vector3f(0,0,-25));
         currentScene.addGameObjectToScene(n);
-        renderer.prepare(defaultShader);
-
+        currentScene.addGameObjectToScene(light);
+        renderer.init();
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
@@ -193,13 +180,11 @@ public class Window {
             // Render pass 1. Render to picking texture
             glDisable(GL_BLEND);
             //pickingTexture.enableWriting();
-
             glViewport(0, 0, 3840, 2160);
             glClearColor(0.5f, 0.5f, 0.5f, 1);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             //Renderer.bindShader(pickingShader);
-            //currentScene.render();
 
             //pickingTexture.disableWriting();
             glEnable(GL_BLEND);
@@ -208,9 +193,10 @@ public class Window {
             this.framebuffer.bind();
             glClearColor(0.5f, 0.5f, 0.5f, 1);
             glClear(GL_COLOR_BUFFER_BIT);
-            defaultShader.start();
-
-            renderer.renderAll(currentScene.getGameObjects(), defaultShader);
+            for(Node node:currentScene.getGameObjects()){
+                renderer.processEntity(node);
+            }
+            renderer.render();
             if (dt >= 0) {
                 if (runtimePlaying) {
                     currentScene.update(dt);
@@ -218,7 +204,6 @@ public class Window {
                     currentScene.editorUpdate(dt);
                 }
             }
-            defaultShader.stop();
             this.framebuffer.unbind();
 
             this.imguiLayer.update(dt, currentScene);
@@ -227,8 +212,9 @@ public class Window {
             dt = endTime - beginTime;
             beginTime = endTime;
         }
+        defaultShader.destroy();
+        renderer.end();
         loader.cleanUp();
-        defaultShader.cleanUp();
     }
 
     public static int getWidth() {

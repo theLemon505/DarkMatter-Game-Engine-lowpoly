@@ -1,9 +1,7 @@
 package CoreEngine.Components;
 
 import CoreEngine.Maths.Vector3f;
-import CoreEngine.Models.TexturedModel;
 import CoreEngine.Objects.Node;
-import CoreEngine.Window;
 import imgui.ImGui;
 import imgui.type.ImInt;
 
@@ -61,7 +59,7 @@ public abstract class Component {
                 else if (type == float.class) {
                     float val = (float)value;
                     if(ImGui.dragFloat(name, new float[]{val})){
-                        val = val;
+                        field.set(this, val);
                     }
                 }
                 else if (type == float.class) {
@@ -91,7 +89,6 @@ public abstract class Component {
                         ImGui.treeNode("textureID: " + a);
                     }
                 }
-
                 else if (type == Vector3f.class) {
                     Vector3f val = (Vector3f)value;
                     float[] imVec = {val.getX(), val.getY(), val.getZ()};
